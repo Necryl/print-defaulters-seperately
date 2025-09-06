@@ -59,7 +59,7 @@ const main = (() => {
       let date = new Date(main.elems.dateInput.value);
       const options = { year: "numeric", month: "long", day: "numeric" };
       const humanReadableDate = date.toLocaleDateString("en-US", options);
-      return `Date: ${humanReadableDate}`;
+      return isNaN(date) ? "" : `Date: ${humanReadableDate}`;
     }
     dateRow.textContent = getDate();
     main.elems.dateInput.addEventListener("change", (e) => {
