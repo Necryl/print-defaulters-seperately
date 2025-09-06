@@ -2,7 +2,8 @@ console.log("running");
 const main = (() => {
   const elems = {
     fileInput: document.querySelector("#fileInput input"),
-    printElem: document.querySelector("#printable")
+    dateInput: document.querySelector("#date input"),
+    printElem: document.querySelector("#printable"),
   };
 
   function parse(text) {
@@ -47,12 +48,18 @@ const main = (() => {
         rowElem.appendChild(cellElem);
       });
       if (header) {
-      let headElem = document.createElement("thead");
-      headElem.appendChild(rowElem);
-      return headElem;
+        let headElem = document.createElement("thead");
+        headElem.appendChild(rowElem);
+        return headElem;
       }
       return rowElem;
     }
+    let dateRow = document.createElement("div");
+    dateRow.textContent = main.elems.dateInput.value;
+    main.elems.dateInput.addEventListener("change", (e) => {
+      dateRow.textContent = e.target.value;
+    });
+    table.appendChild(dateRow);
     table.appendChild(createRow(header, true));
     data.forEach((rowData) => {
       table.appendChild(createRow(rowData));
