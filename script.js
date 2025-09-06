@@ -59,7 +59,7 @@ const main = (() => {
     main.elems.dateInput.addEventListener("change", (e) => {
       dateRow.textContent = e.target.value;
     });
-    table.appendChild(dateRow);
+    result.appendChild(dateRow);
     table.appendChild(createRow(header, true));
     data.forEach((rowData) => {
       table.appendChild(createRow(rowData));
