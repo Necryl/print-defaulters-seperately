@@ -55,7 +55,10 @@ const main = (() => {
       return rowElem;
     }
     let dateRow = document.createElement("div");
-    dateRow.textContent = main.elems.dateInput.value;
+    let date = new Date(main.elems.dateInput.value);
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    const humanReadableDate = date.toLocaleDateString("en-US", options);
+    dateRow.textContent = `Date: ${humanReadableDate}`;
     main.elems.dateInput.addEventListener("change", (e) => {
       dateRow.textContent = e.target.value;
     });
