@@ -55,12 +55,15 @@ const main = (() => {
       return rowElem;
     }
     let dateRow = document.createElement("div");
-    let date = new Date(main.elems.dateInput.value);
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const humanReadableDate = date.toLocaleDateString("en-US", options);
-    dateRow.textContent = `Date: ${humanReadableDate}`;
+    function getDate() {
+      let date = new Date(main.elems.dateInput.value);
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      const humanReadableDate = date.toLocaleDateString("en-US", options);
+      return `Date: ${humanReadableDate}`;
+    }
+    dateRow.textContent = getDate();
     main.elems.dateInput.addEventListener("change", (e) => {
-      dateRow.textContent = e.target.value;
+      dateRow.textContent = getDate();
     });
     result.appendChild(dateRow);
     table.appendChild(createRow(header, true));
