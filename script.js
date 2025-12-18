@@ -4,14 +4,29 @@ const main = (() => {
     fileInput: document.querySelector("#fileInput input"),
     dateInput: document.querySelector("#date input"),
     printElem: document.querySelector("#printable"),
+    numberRows: document.querySelector("#numberRows input"),
+    hideFirstColumn: document.querySelector("#hideFirstColumn input"),
   };
 
   function parse(text) {
+    elems.printElem.innerHTML = "";
     let result = text.trim().split("\r\n");
     result = result.map((row) => {
       return row.split(",");
     });
-    tableData.header = result.shift();
+    let header = result.shift();
+    const emptyColumnIndices = [];
+    for (let i = 0; i < header.length; i++) {
+      if (header[i].trim() === "") {
+        emptyColumnIndices.push(i);
+      }
+    }
+    tableData.header = header.filter(
+      (_, i) => !emptyColumnIndices.includes(i)
+    );
+    result = result.map((row) =>
+      row.filter((_, i) => !emptyColumnIndices.includes(i))
+    );
     let blocks = [];
     let block = [];
     let className = "";
@@ -37,22 +52,42 @@ const main = (() => {
       elems.printElem.appendChild(generateTable(tableData.header, blc));
     });
   }
+  function createRow(data, header = false) {
+    let rowElem = document.createElement("tr");
+    data.forEach((cell) => {
+      let cellElem = document.createElement(header ? "th" : "td");
+      cellElem.textContent = cell;
+      rowElem.appendChild(cellElem);
+    });
+    if (header) {
+      let headElem = document.createElement("thead");
+      headElem.appendChild(rowElem);
+      return headElem;
+    }
+    return rowElem;
+  }
   function generateTable(header, data) {
     let result = document.createElement("div");
     let table = document.createElement("table");
-    function createRow(data, header = false) {
-      let rowElem = document.createElement("tr");
-      data.forEach((cell) => {
-        let cellElem = document.createElement(header ? "th" : "td");
-        cellElem.textContent = cell;
-        rowElem.appendChild(cellElem);
+    const SNo = main.elems.numberRows.checked;
+    const hideFirstColumn = main.elems.hideFirstColumn.checked;
+    let tableHeader = [...header];
+    let tableBody = [...data];
+    if (hideFirstColumn) {
+      tableHeader.shift();
+      tableBody = tableBody.map((row) => {
+        let newRow = [...row];
+        newRow.shift();
+        return newRow;
       });
-      if (header) {
-        let headElem = document.createElement("thead");
-        headElem.appendChild(rowElem);
-        return headElem;
-      }
-      return rowElem;
+    }
+    if (SNo) {
+      tableHeader.unshift("S.No.");
+      tableBody = tableBody.map((row, index) => {
+        let newRow = [...row];
+        newRow.unshift(index + 1);
+        return newRow;
+      });
     }
     let dateRow = document.createElement("div");
     function getDate() {
@@ -66,8 +101,8 @@ const main = (() => {
       dateRow.textContent = getDate();
     });
     result.appendChild(dateRow);
-    table.appendChild(createRow(header, true));
-    data.forEach((rowData) => {
+    table.appendChild(createRow(tableHeader, true));
+    tableBody.forEach((rowData) => {
       table.appendChild(createRow(rowData));
     });
     result.setAttribute("class", "block");
@@ -75,7 +110,7 @@ const main = (() => {
     return result;
   }
 
-  let tableData = { header: [], dataBlocks: [] };
+  let tableData = { header: [], dataBlocks: [], text: "" };
   return { elems, tableData, parse };
 })();
 
@@ -86,6 +121,7 @@ const events = (() => {
 
     reader.onload = function (e) {
       const text = e.target.result;
+      main.tableData.text = text;
       main.parse(text);
     };
 
@@ -93,4 +129,10 @@ const events = (() => {
   }
 
   main.elems.fileInput.addEventListener("change", readFile);
+  main.elems.numberRows.addEventListener("change", () => {
+    main.parse(main.tableData.text);
+  });
+  main.elems.hideFirstColumn.addEventListener("change", () => {
+    main.parse(main.tableData.text);
+  });
 })();
